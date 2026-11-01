@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+
+const links = [
+	{ label: 'GitHub', href: 'https://github.com/Fede-Berga' },
+	{ label: 'ORCID', href: 'https://orcid.org/0009-0006-8503-1202' },
+];
+---
+
+<Base
+	title="Federico Bergamini"
+	description="Federico Bergamini, PhD student in software security testing at the University of Luxembourg."
+>
+	<main class="mx-auto flex min-h-dvh max-w-2xl flex-col justify-center gap-6 px-6 py-24">
+		<h1 class="text-4xl font-semibold tracking-tight sm:text-5xl">Federico Bergamini</h1>
+		<p class="text-lg text-neutral-600 dark:text-neutral-400">
+			PhD student at the University of Luxembourg, working on metamorphic security testing assisted by large
+			language models. The full site is on its way.
+		</p>
+		<ul class="flex gap-6">
+			{
+				links.map((link) => (
+					<li>
+						<a
+							class="underline decoration-neutral-400 underline-offset-4 hover:decoration-current focus-visible:outline-2 focus-visible:outline-offset-4"
+							href={link.href}
+						>
+							{link.label}
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	</main>
+</Base>
