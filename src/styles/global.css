@@ -1,1 +1,104 @@
 @import "tailwindcss";
+
+@theme {
+	--font-sans: "Inter Tight Variable", ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+	--breakpoint-sm: 37.5rem;
+	--breakpoint-md: 53.75rem;
+	--animate-rise: rise 700ms cubic-bezier(0.2, 0.6, 0.2, 1) both;
+
+	@keyframes rise {
+		from {
+			opacity: 0;
+			transform: translateY(6px);
+		}
+		to {
+			opacity: 1;
+			transform: none;
+		}
+	}
+}
+
+@theme inline {
+	--color-paper: var(--paper);
+	--color-ink: var(--ink);
+	--color-muted: var(--muted);
+	--color-rule: var(--rule);
+	--color-accent: var(--accent);
+}
+
+:root {
+	--paper: #f5f3ee;
+	--ink: #151514;
+	--muted: #5d5b56;
+	--rule: #d6d2c8;
+	--accent: #a3221a;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) {
+		--paper: #131312;
+		--ink: #ebe9e3;
+		--muted: #a19e96;
+		--rule: #34332f;
+		--accent: #e57a6c;
+	}
+}
+
+:root[data-theme="light"] {
+	color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+	color-scheme: dark;
+	--paper: #131312;
+	--ink: #ebe9e3;
+	--muted: #a19e96;
+	--rule: #34332f;
+	--accent: #e57a6c;
+}
+
+@layer base {
+	body {
+		font-size: 1.0625rem;
+		line-height: 1.55;
+		text-rendering: optimizeLegibility;
+	}
+
+	a {
+		background-image: linear-gradient(currentColor, currentColor);
+		background-size: 100% 1px;
+		background-position: 0 100%;
+		background-repeat: no-repeat;
+		transition:
+			background-size 220ms ease,
+			color 160ms ease;
+	}
+
+	a:hover {
+		color: var(--accent);
+	}
+
+	:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 3px;
+		border-radius: 1px;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation: none !important;
+			transition: none !important;
+		}
+	}
+}
+
+/* Links that show their underline only on hover. */
+@utility link-quiet {
+	background-size: 0 1px;
+
+	&:hover {
+		background-size: 100% 1px;
+	}
+}
