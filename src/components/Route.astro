@@ -1,38 +1,76 @@
 ---
-import { route } from '../data/site';
+import { log } from '../data/site';
 ---
 
 <section id="path" aria-labelledby="path-title">
 	<h2 id="path-title">From Milano to Luxembourg</h2>
-	<div class="cities" aria-hidden="true"><span>Milano</span><span>Luxembourg</span></div>
-	<p class="end start" aria-hidden="true">Milano</p>
-	<ol class="route">
+	<p class="cmd mono" aria-hidden="true"><span class="typed">git log --graph --oneline</span></p>
+	<ol class="log">
 		{
-			route.map((stop) =>
-				Array.isArray(stop) ? (
-					<li class="stop interchange">
-						<span class="sr-only">At the same time:</span>
-						<div class="roles">
-							{stop.map((part) => (
-								<div>
-									<p class="when">{part.when}</p>
-									<p class="role">{part.role}</p>
-									<p class="place">{part.place}</p>
-								</div>
-							))}
+			log.map((commit, i) => {
+				const head = i === 0;
+				const root = i === log.length - 1;
+				const forks = !commit.side && log[i + 1]?.side;
+				const merges = !commit.side && log[i - 1]?.side;
+				return (
+					<li class:list={['commit', { side: commit.side }]} style={`--k: ${log.length - 1 - i}`}>
+						<div class="graph" aria-hidden="true">
+							<span class:list={['lane', 'a', { 'from-dot': head, 'to-dot': root }]} />
+							{commit.side && <span class="lane b" />}
+							{forks && (
+								<>
+									<svg class="fork" viewBox="0 0 22 22">
+										<path d="M0 0C0 13 22 9 22 22" pathLength="1" />
+									</svg>
+									<span class="lane b after-fork" />
+								</>
+							)}
+							{merges && (
+								<>
+									<span class="lane b before-merge" />
+									<svg class="merge" viewBox="0 0 22 22">
+										<path d="M22 0C22 13 0 9 0 22" pathLength="1" />
+									</svg>
+								</>
+							)}
+							<span class:list={['dot', commit.side ? 'b' : 'a', { head }]} />
+						</div>
+						<div class="body">
+							<p class="msg">
+								<code class="hash mono" aria-hidden="true">{commit.hash}</code>
+								<span class="role">{commit.role}</span>
+								{head && (
+									<>
+										<span class="ref mono" aria-hidden="true">HEAD -&gt; luxembourg</span>
+										<span class="sr-only">, current position</span>
+									</>
+								)}
+								{commit.side && <span class="sr-only">, in parallel with the role below</span>}
+							</p>
+							<p class="place">
+								{commit.place} · <span class="when">{commit.when}</span>
+							</p>
 						</div>
 					</li>
-				) : (
-					<li class="stop">
-						<p class="when">{stop.when}</p>
-						<p class="role">{stop.role}</p>
-						<p class="place">{stop.place}</p>
-					</li>
-				),
-			)
+				);
+			})
 		}
 	</ol>
-	<p class="end finish" aria-hidden="true">Luxembourg</p>
+	<script is:inline>
+		(() => {
+			const section = document.getElementById('path');
+			if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+			section.classList.add('armed');
+			new IntersectionObserver(
+				(entries, observer) => {
+					if (!entries.some((entry) => entry.isIntersecting)) return;
+					section.classList.add('play');
+					observer.disconnect();
+				},
+				{ threshold: 0.3 },
+			).observe(section);
+		})();
+	</script>
 </section>
 
 <style>
@@ -44,232 +82,297 @@ import { route } from '../data/site';
 		margin-bottom: 0;
 	}
 
-	.cities {
-		display: flex;
-		justify-content: space-between;
-		margin-top: 10px;
-		margin-bottom: 8px;
+	.mono {
+		font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 	}
 
-	.cities,
-	.end,
-	.when {
-		font-family: var(--sans);
-		font-weight: 600;
-		font-size: 15px;
+	.cmd {
+		font-size: 14px;
 		color: var(--slate);
+		margin: 6px 0 14px;
 	}
 
-	.route {
+	.cmd::before {
+		content: '$ ';
+		color: var(--line);
+	}
+
+	.log {
+		max-width: 46em;
+	}
+
+	.commit {
 		position: relative;
-		isolation: isolate;
 		display: grid;
-		grid-template-columns: minmax(0, 0.75fr) minmax(0, 0.85fr) minmax(0, 0.9fr) minmax(0, 2.4fr) minmax(0, 1.3fr);
-		gap: 0 28px;
+		grid-template-columns: 48px minmax(0, 1fr);
 	}
 
-	.route::before {
-		content: '';
-		position: absolute;
-		left: 0;
-		right: 0;
-		top: 9px;
-		height: 8px;
-		border-radius: 4px;
-		background: var(--line);
-		transform-origin: left center;
-		animation: draw 1.4s linear both;
+	.body {
+		padding: 10px 0;
 	}
 
-	.stop {
+	.side .body {
+		padding-left: 22px;
+	}
+
+	/* Lanes at x = 12.5 and 34.5; dots sit at --cy, the middle of the 26px role line. */
+	.graph {
 		position: relative;
-		padding-top: 38px;
+		--cy: 23px;
 	}
 
-	.stop::before {
-		content: '';
+	.graph > * {
 		position: absolute;
-		left: 0;
+	}
+
+	.lane {
+		width: 3px;
+		background: var(--line);
 		top: 0;
-		width: 26px;
-		height: 26px;
-		border: 6px solid var(--line);
+		bottom: 0;
+	}
+
+	.lane.a {
+		left: 11px;
+	}
+
+	.lane.b {
+		left: 33px;
+	}
+
+	.from-dot {
+		top: var(--cy);
+	}
+
+	.to-dot {
+		bottom: auto;
+		height: var(--cy);
+	}
+
+	.after-fork {
+		top: calc(var(--cy) + 22px);
+	}
+
+	.before-merge {
+		bottom: auto;
+		height: calc(var(--cy) - 22px);
+	}
+
+	svg {
+		left: 12.5px;
+		width: 22px;
+		height: 22px;
+		overflow: visible;
+	}
+
+	path {
+		fill: none;
+		stroke: var(--line);
+		stroke-width: 3;
+	}
+
+	.fork {
+		top: var(--cy);
+	}
+
+	.merge {
+		top: calc(var(--cy) - 22px);
+	}
+
+	.dot {
+		width: 13px;
+		height: 13px;
+		top: calc(var(--cy) - 6.5px);
+		margin-left: -6.5px;
+		border: 3px solid var(--line);
 		border-radius: 999px;
 		background: var(--paper);
-		animation: arrive 0.35s ease-out both;
-		animation-delay: var(--at, 0s);
+		z-index: 1;
 	}
 
-	/* Delays follow each station's position along the 1.4s linear draw. */
-	.stop:nth-child(2) {
-		--at: 0.19s;
+	.dot.a {
+		left: 12.5px;
 	}
 
-	.stop:nth-child(3) {
-		--at: 0.4s;
+	.dot.b {
+		left: 34.5px;
 	}
 
-	.stop:nth-child(4) {
-		--at: 0.61s;
+	.dot.head {
+		width: 17px;
+		height: 17px;
+		top: calc(var(--cy) - 8.5px);
+		margin-left: -8.5px;
+		background: var(--line);
 	}
 
-	.stop:nth-child(5) {
-		--at: 1.32s;
+	.msg {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0 10px;
+		line-height: 26px;
 	}
 
-	.interchange::before {
-		width: 100%;
-		transform-origin: left center;
-		animation-name: grow;
-		animation-duration: 0.5s;
-		animation-timing-function: linear;
-	}
-
-	.stop:last-child {
-		text-align: right;
-	}
-
-	.stop:last-child::before {
-		left: auto;
-		right: 0;
-	}
-
-	.roles {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 0 20px;
-	}
-
-	.when {
-		font-variant-numeric: tabular-nums;
+	.hash {
+		font-size: 14px;
+		color: var(--slate);
 	}
 
 	.role {
 		font-family: var(--sans);
 		font-weight: 600;
 		font-size: 17px;
-		line-height: 1.3;
-		margin-top: 2px;
-		text-wrap: balance;
+	}
+
+	.ref {
+		font-size: 12.5px;
+		line-height: 1;
+		padding: 3px 7px;
+		border: 1px solid var(--line);
+		border-radius: 999px;
+		background: var(--line);
+		color: var(--paper);
+		white-space: nowrap;
 	}
 
 	.place {
 		font-size: 15px;
 		line-height: 1.5;
 		color: var(--slate);
-		margin-top: 4px;
-		text-wrap: pretty;
 	}
 
-	.end {
-		display: none;
+	.when {
+		font-family: var(--sans);
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
 	}
 
-	.start {
-		margin: 14px 0 10px;
-	}
-
-	.finish {
-		margin-top: 10px;
-	}
-
-	@keyframes draw {
-		from {
-			transform: scaleX(0);
-		}
-		to {
-			transform: scaleX(1);
-		}
-	}
-
-	@keyframes grow {
-		from {
-			opacity: 0;
-			transform: scaleX(0.07);
-		}
-		to {
-			opacity: 1;
-			transform: scaleX(1);
-		}
-	}
-
-	@keyframes arrive {
-		from {
-			opacity: 0;
-			transform: scale(0.4);
-		}
-		to {
-			opacity: 1;
-			transform: scale(1);
-		}
-	}
-
-	/* Below this width the route runs vertically and is drawn without motion. */
-	@media (max-width: 1040px) {
-		.cities,
-		.route::before {
+	@media (max-width: 760px) {
+		.hash {
 			display: none;
 		}
+	}
 
-		.end {
-			display: block;
+	/*
+	 * Motion, only once the script arms the section: the command types out, then history
+	 * builds from the root commit up, one commit every 0.22s (--k counts from the bottom).
+	 */
+	.armed:not(.play) *,
+	.armed:not(.play) *::before,
+	.armed:not(.play) *::after {
+		animation-play-state: paused;
+	}
+
+	.armed .typed {
+		display: inline-block;
+		overflow: hidden;
+		white-space: nowrap;
+		vertical-align: bottom;
+		animation: type 0.9s steps(25) both;
+	}
+
+	.armed .cmd::after {
+		content: '';
+		display: inline-block;
+		width: 0.6em;
+		height: 1.1em;
+		margin-left: 2px;
+		vertical-align: text-bottom;
+		background: var(--slate);
+		animation: blink 0.5s steps(1) 6 both;
+	}
+
+	.armed .commit {
+		--d: calc(1s + var(--k) * 0.22s);
+	}
+
+	.armed .lane {
+		transform-origin: bottom;
+		animation: rise 0.25s var(--d) linear both;
+	}
+
+	.armed path {
+		stroke-dasharray: 1;
+		animation: draw 0.25s calc(var(--d) + 0.1s) ease-out both;
+	}
+
+	.armed .dot {
+		animation: pop 0.3s calc(var(--d) + 0.15s) ease-out both;
+	}
+
+	.armed .body {
+		animation: enter 0.4s calc(var(--d) + 0.15s) ease-out both;
+	}
+
+	.armed .ref {
+		display: inline-block;
+		animation: pop 0.35s calc(var(--d) + 0.45s) ease-out both;
+	}
+
+	@keyframes type {
+		from {
+			width: 0;
 		}
-
-		.route {
-			display: block;
-		}
-
-		.stop {
-			padding: 0 0 28px 44px;
-		}
-
-		.stop:not(:last-child)::after {
-			content: '';
-			position: absolute;
-			left: 9px;
-			top: 13px;
-			bottom: -15px;
-			width: 8px;
-			background: var(--line);
-			z-index: -1;
-		}
-
-		.stop::before,
-		.interchange::before {
-			left: 0;
-			top: 2px;
-			animation: none;
-		}
-
-		.interchange::before {
-			width: 26px;
-			height: calc(100% - 28px);
-		}
-
-		.stop:last-child {
-			text-align: left;
-			padding-bottom: 0;
-		}
-
-		.stop:last-child::before {
-			left: 0;
-			right: auto;
-		}
-
-		.roles {
-			display: block;
-		}
-
-		.roles > div + div {
-			margin-top: 14px;
+		to {
+			width: 25ch;
 		}
 	}
 
-	@media (prefers-reduced-motion: reduce) {
-		.route::before,
-		.stop::before,
-		.interchange::before {
-			animation: none;
+	@keyframes blink {
+		0% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0;
+		}
+	}
+
+	@keyframes rise {
+		from {
+			transform: scaleY(0);
+		}
+	}
+
+	/* Paths run top to bottom, so a negative offset draws them upward from their end. */
+	@keyframes draw {
+		from {
+			stroke-dashoffset: -1;
+		}
+		to {
+			stroke-dashoffset: 0;
+		}
+	}
+
+	@keyframes pop {
+		from {
+			opacity: 0;
+			transform: scale(0.3);
+		}
+	}
+
+	@keyframes enter {
+		from {
+			opacity: 0;
+			transform: translateY(6px);
+		}
+	}
+
+	@media (forced-colors: active) {
+		.lane {
+			background: CanvasText;
+		}
+
+		path {
+			stroke: CanvasText;
+		}
+
+		.dot {
+			border-color: CanvasText;
+		}
+
+		.dot.head {
+			background: CanvasText;
 		}
 	}
 </style>

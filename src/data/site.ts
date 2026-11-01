@@ -5,23 +5,23 @@ export const links = [
 	{ label: 'LinkedIn', href: 'https://www.linkedin.com/in/federico-bergamini-21b17a24b/' },
 ];
 
-export interface Stop {
-	when: string;
+export interface Commit {
+	hash: string;
 	role: string;
 	place: string;
+	when: string;
+	// On the side lane: a branch that forks from the commit below it and merges into the one above.
+	side?: boolean;
 }
 
-// Stations from Milano to Luxembourg. An array of stops is an interchange:
-// roles that ran at the same time.
-export const route: (Stop | Stop[])[] = [
-	{ when: '2018–2021', role: 'BSc Computer Science', place: 'Milano-Bicocca' },
-	{ when: '2021–2024', role: 'MSc Computer Science', place: 'Milano-Bicocca' },
-	{ when: '2024', role: 'Embedded software engineer', place: 'Alten, Milan' },
-	[
-		{ when: 'Sep 2024–Apr 2026', role: 'Computer science teacher', place: 'High school, Monza' },
-		{ when: 'Oct 2024–Feb 2026', role: 'Research fellow', place: 'Milano-Bicocca' },
-	],
-	{ when: 'Apr 2026–now', role: 'PhD student', place: 'University of Luxembourg' },
+// The career as `git log --graph --oneline`, newest first. Hashes are decorative.
+export const log: Commit[] = [
+	{ hash: 'e0f4d2a', role: 'PhD student', place: 'University of Luxembourg', when: 'Apr 2026–now' },
+	{ hash: '9a7c6b1', role: 'Research fellow', place: 'Milano-Bicocca', when: 'Oct 2024–Feb 2026', side: true },
+	{ hash: '5e9d3f8', role: 'Computer science teacher', place: 'High school, Monza', when: 'Sep 2024–Apr 2026' },
+	{ hash: 'c41b0a7', role: 'Embedded software engineer', place: 'Alten, Milan', when: '2024' },
+	{ hash: '8d04e71', role: 'MSc Computer Science', place: 'Milano-Bicocca', when: 'Oct 2021–Feb 2024' },
+	{ hash: '3f1a9c2', role: 'BSc Computer Science', place: 'Milano-Bicocca', when: 'Oct 2018–Jul 2021' },
 ];
 
 export const projects = [
