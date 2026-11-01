@@ -1,104 +1,106 @@
 @import "tailwindcss";
 
-@theme {
-	--font-sans: "Inter Tight Variable", ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
-	--breakpoint-sm: 37.5rem;
-	--breakpoint-md: 53.75rem;
-	--animate-rise: rise 700ms cubic-bezier(0.2, 0.6, 0.2, 1) both;
-
-	@keyframes rise {
-		from {
-			opacity: 0;
-			transform: translateY(6px);
-		}
-		to {
-			opacity: 1;
-			transform: none;
-		}
-	}
-}
-
-@theme inline {
-	--color-paper: var(--paper);
-	--color-ink: var(--ink);
-	--color-muted: var(--muted);
-	--color-rule: var(--rule);
-	--color-accent: var(--accent);
-}
-
 :root {
-	--paper: #f5f3ee;
-	--ink: #151514;
-	--muted: #5d5b56;
-	--rule: #d6d2c8;
-	--accent: #a3221a;
+	--paper: #f4f6f8;
+	--ink: #18212e;
+	--slate: #4a5566;
+	--rule: #cdd5de;
+	--line: #0a6a94;
+	--sans: "Overpass Variable", "Helvetica Neue", Arial, sans-serif;
+	--serif: "Source Serif 4 Variable", Georgia, serif;
+	--gutter: 40px;
+	color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
 	:root:not([data-theme="light"]) {
-		--paper: #131312;
-		--ink: #ebe9e3;
-		--muted: #a19e96;
-		--rule: #34332f;
-		--accent: #e57a6c;
+		--paper: #131a23;
+		--ink: #e4e9ef;
+		--slate: #9aa7b7;
+		--rule: #2a3544;
+		--line: #4fb0dd;
+		color-scheme: dark;
 	}
 }
 
-:root[data-theme="light"] {
-	color-scheme: light;
+:root[data-theme="dark"] {
+	--paper: #131a23;
+	--ink: #e4e9ef;
+	--slate: #9aa7b7;
+	--rule: #2a3544;
+	--line: #4fb0dd;
+	color-scheme: dark;
 }
 
-:root[data-theme="dark"] {
-	color-scheme: dark;
-	--paper: #131312;
-	--ink: #ebe9e3;
-	--muted: #a19e96;
-	--rule: #34332f;
-	--accent: #e57a6c;
+@media (max-width: 760px) {
+	:root {
+		--gutter: 16px;
+	}
 }
 
 @layer base {
 	body {
-		font-size: 1.0625rem;
-		line-height: 1.55;
-		text-rendering: optimizeLegibility;
+		background: var(--paper);
+		color: var(--ink);
+		font-family: var(--serif);
+		font-size: 17px;
+		line-height: 1.6;
+		font-optical-sizing: auto;
+	}
+
+	@media (max-width: 760px) {
+		body {
+			font-size: 16px;
+		}
 	}
 
 	a {
-		background-image: linear-gradient(currentColor, currentColor);
-		background-size: 100% 1px;
-		background-position: 0 100%;
-		background-repeat: no-repeat;
-		transition:
-			background-size 220ms ease,
-			color 160ms ease;
+		color: var(--line);
+		text-decoration: underline;
+		text-decoration-thickness: 1px;
+		text-underline-offset: 3px;
 	}
 
 	a:hover {
-		color: var(--accent);
+		text-decoration-thickness: 2px;
 	}
 
 	:focus-visible {
-		outline: 2px solid var(--accent);
+		outline: 2px solid var(--line);
 		outline-offset: 3px;
-		border-radius: 1px;
+		border-radius: 2px;
 	}
 
-	@media (prefers-reduced-motion: reduce) {
-		*,
-		*::before,
-		*::after {
-			animation: none !important;
-			transition: none !important;
+	h1,
+	h2,
+	h3 {
+		font-family: var(--sans);
+		font-weight: 600;
+		line-height: 1.15;
+	}
+
+	h2 {
+		font-size: 26px;
+		margin-bottom: 16px;
+	}
+
+	@media (max-width: 760px) {
+		h2 {
+			font-size: 21px;
 		}
 	}
-}
 
-/* Links that show their underline only on hover. */
-@utility link-quiet {
-	background-size: 0 1px;
+	.wrap {
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 0 var(--gutter);
+	}
 
-	&:hover {
-		background-size: 100% 1px;
+	.year {
+		font-family: var(--sans);
+		font-weight: 600;
+		font-size: 15px;
+		font-variant-numeric: tabular-nums;
+		padding-top: 3px;
 	}
 }

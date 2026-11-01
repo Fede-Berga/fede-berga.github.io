@@ -1,0 +1,275 @@
+---
+import { route } from '../data/site';
+---
+
+<section id="path" aria-labelledby="path-title">
+	<h2 id="path-title">From Milano to Luxembourg</h2>
+	<div class="cities" aria-hidden="true"><span>Milano</span><span>Luxembourg</span></div>
+	<p class="end start" aria-hidden="true">Milano</p>
+	<ol class="route">
+		{
+			route.map((stop) =>
+				Array.isArray(stop) ? (
+					<li class="stop interchange">
+						<span class="sr-only">At the same time:</span>
+						<div class="roles">
+							{stop.map((part) => (
+								<div>
+									<p class="when">{part.when}</p>
+									<p class="role">{part.role}</p>
+									<p class="place">{part.place}</p>
+								</div>
+							))}
+						</div>
+					</li>
+				) : (
+					<li class="stop">
+						<p class="when">{stop.when}</p>
+						<p class="role">{stop.role}</p>
+						<p class="place">{stop.place}</p>
+					</li>
+				),
+			)
+		}
+	</ol>
+	<p class="end finish" aria-hidden="true">Luxembourg</p>
+</section>
+
+<style>
+	section {
+		margin-top: 28px;
+	}
+
+	h2 {
+		margin-bottom: 0;
+	}
+
+	.cities {
+		display: flex;
+		justify-content: space-between;
+		margin-top: 10px;
+		margin-bottom: 8px;
+	}
+
+	.cities,
+	.end,
+	.when {
+		font-family: var(--sans);
+		font-weight: 600;
+		font-size: 15px;
+		color: var(--slate);
+	}
+
+	.route {
+		position: relative;
+		isolation: isolate;
+		display: grid;
+		grid-template-columns: minmax(0, 0.75fr) minmax(0, 0.85fr) minmax(0, 0.9fr) minmax(0, 2.4fr) minmax(0, 1.3fr);
+		gap: 0 28px;
+	}
+
+	.route::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 9px;
+		height: 8px;
+		border-radius: 4px;
+		background: var(--line);
+		transform-origin: left center;
+		animation: draw 1.4s linear both;
+	}
+
+	.stop {
+		position: relative;
+		padding-top: 38px;
+	}
+
+	.stop::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 26px;
+		height: 26px;
+		border: 6px solid var(--line);
+		border-radius: 999px;
+		background: var(--paper);
+		animation: arrive 0.35s ease-out both;
+		animation-delay: var(--at, 0s);
+	}
+
+	/* Delays follow each station's position along the 1.4s linear draw. */
+	.stop:nth-child(2) {
+		--at: 0.19s;
+	}
+
+	.stop:nth-child(3) {
+		--at: 0.4s;
+	}
+
+	.stop:nth-child(4) {
+		--at: 0.61s;
+	}
+
+	.stop:nth-child(5) {
+		--at: 1.32s;
+	}
+
+	.interchange::before {
+		width: 100%;
+		transform-origin: left center;
+		animation-name: grow;
+		animation-duration: 0.5s;
+		animation-timing-function: linear;
+	}
+
+	.stop:last-child {
+		text-align: right;
+	}
+
+	.stop:last-child::before {
+		left: auto;
+		right: 0;
+	}
+
+	.roles {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0 20px;
+	}
+
+	.when {
+		font-variant-numeric: tabular-nums;
+	}
+
+	.role {
+		font-family: var(--sans);
+		font-weight: 600;
+		font-size: 17px;
+		line-height: 1.3;
+		margin-top: 2px;
+		text-wrap: balance;
+	}
+
+	.place {
+		font-size: 15px;
+		line-height: 1.5;
+		color: var(--slate);
+		margin-top: 4px;
+		text-wrap: pretty;
+	}
+
+	.end {
+		display: none;
+	}
+
+	.start {
+		margin: 14px 0 10px;
+	}
+
+	.finish {
+		margin-top: 10px;
+	}
+
+	@keyframes draw {
+		from {
+			transform: scaleX(0);
+		}
+		to {
+			transform: scaleX(1);
+		}
+	}
+
+	@keyframes grow {
+		from {
+			opacity: 0;
+			transform: scaleX(0.07);
+		}
+		to {
+			opacity: 1;
+			transform: scaleX(1);
+		}
+	}
+
+	@keyframes arrive {
+		from {
+			opacity: 0;
+			transform: scale(0.4);
+		}
+		to {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	/* Below this width the route runs vertically and is drawn without motion. */
+	@media (max-width: 1040px) {
+		.cities,
+		.route::before {
+			display: none;
+		}
+
+		.end {
+			display: block;
+		}
+
+		.route {
+			display: block;
+		}
+
+		.stop {
+			padding: 0 0 28px 44px;
+		}
+
+		.stop:not(:last-child)::after {
+			content: '';
+			position: absolute;
+			left: 9px;
+			top: 13px;
+			bottom: -15px;
+			width: 8px;
+			background: var(--line);
+			z-index: -1;
+		}
+
+		.stop::before,
+		.interchange::before {
+			left: 0;
+			top: 2px;
+			animation: none;
+		}
+
+		.interchange::before {
+			width: 26px;
+			height: calc(100% - 28px);
+		}
+
+		.stop:last-child {
+			text-align: left;
+			padding-bottom: 0;
+		}
+
+		.stop:last-child::before {
+			left: 0;
+			right: auto;
+		}
+
+		.roles {
+			display: block;
+		}
+
+		.roles > div + div {
+			margin-top: 14px;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.route::before,
+		.stop::before,
+		.interchange::before {
+			animation: none;
+		}
+	}
+</style>

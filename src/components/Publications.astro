@@ -1,0 +1,75 @@
+---
+import { getCollection } from 'astro:content';
+
+const self = 'F. Bergamini';
+
+const publications = (await getCollection('publications'))
+	.map((entry) => entry.data)
+	.sort((a, b) => b.year - a.year || a.title.localeCompare(b.title));
+---
+
+<section id="publications" aria-labelledby="publications-title">
+	<h2 id="publications-title">Publications</h2>
+	<ol>
+		{
+			publications.map((publication) => (
+				<li>
+					<span class="year">{publication.year}</span>
+					<div>
+						<h3>{publication.title}</h3>
+						<p class="venue">
+							{publication.venue}.{' '}
+							{publication.doi && <a href={`https://doi.org/${publication.doi}`}>doi:{publication.doi}</a>}
+						</p>
+						<p class="authors">
+							{publication.authors.map((author, i) => (
+								<>
+									{i > 0 && ', '}
+									{author === self ? <b>{author}</b> : author}
+								</>
+							))}
+						</p>
+					</div>
+				</li>
+			))
+		}
+	</ol>
+</section>
+
+<style>
+	li {
+		display: grid;
+		grid-template-columns: 3.2em minmax(0, 1fr);
+		gap: 0 12px;
+		padding: 12px 0;
+		border-top: 1px solid var(--rule);
+	}
+
+	li:first-child {
+		border-top: 0;
+		padding-top: 0;
+	}
+
+	h3 {
+		font-family: var(--serif);
+		font-weight: 600;
+		font-size: 17px;
+		line-height: 1.35;
+	}
+
+	.venue {
+		font-size: 15px;
+		line-height: 1.5;
+		margin-top: 3px;
+	}
+
+	.authors {
+		font-size: 14px;
+		line-height: 1.4;
+		color: var(--slate);
+	}
+
+	b {
+		font-weight: 600;
+	}
+</style>

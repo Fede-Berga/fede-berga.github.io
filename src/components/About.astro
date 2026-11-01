@@ -1,0 +1,123 @@
+---
+import { Image } from 'astro:assets';
+import portrait from '../assets/portrait.jpg';
+import { links } from '../data/site';
+---
+
+<section class="about" aria-labelledby="name">
+	<h1 id="name">Federico Bergamini</h1>
+	<Image
+		class="portrait"
+		src={portrait}
+		widths={[120, 240, 228, 456]}
+		sizes="(max-width: 760px) 120px, 228px"
+		alt="Portrait of Federico Bergamini."
+		loading="eager"
+		onerror="this.remove()"
+	/>
+	<div class="about-text">
+		<p class="intro">
+			PhD student at the University of Luxembourg, working on automated penetration testing with large language models.
+		</p>
+		<p class="phd">
+			With the Luxembourg National Cybersecurity Competence Center (NC3). Supervisor Prof. Fabrizio Pastore,
+			co-supervisor Nicola Di Cicco.
+		</p>
+		<p class="links">
+			{links.map((link) => <a href={link.href}>{link.label}</a>)}
+		</p>
+	</div>
+</section>
+
+<style>
+	.about {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+		gap: 0 32px;
+		align-items: start;
+	}
+
+	.about:not(:has(.portrait)) {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	h1 {
+		grid-column: 1 / -1;
+		font-size: 56px;
+		font-weight: 700;
+		letter-spacing: -0.015em;
+		margin-bottom: 20px;
+	}
+
+	.portrait {
+		width: 228px;
+		height: auto;
+		aspect-ratio: 228 / 260;
+		object-fit: cover;
+		object-position: 50% 0;
+		border-radius: 4px;
+		background: var(--rule);
+		color: var(--slate);
+		font-size: 15px;
+	}
+
+	.intro {
+		font-size: 20px;
+		line-height: 1.5;
+		max-width: 34em;
+		margin-top: -4px;
+	}
+
+	.phd {
+		margin-top: 12px;
+		font-size: 15px;
+		line-height: 1.5;
+		color: var(--slate);
+	}
+
+	.links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px 22px;
+		margin-top: 20px;
+		font-family: var(--sans);
+		font-size: 15px;
+	}
+
+	@media (max-width: 760px) {
+		.about {
+			grid-template-columns: 120px minmax(0, 1fr);
+			gap: 0 18px;
+		}
+
+		h1 {
+			grid-column: 2;
+			grid-row: 1;
+			align-self: end;
+			font-size: 38px;
+			margin-bottom: 0;
+		}
+
+		.portrait {
+			grid-column: 1;
+			grid-row: 1;
+			width: 120px;
+			aspect-ratio: 1;
+			object-position: 50% 12%;
+		}
+
+		.about-text {
+			grid-column: 1 / -1;
+			margin-top: 20px;
+		}
+
+		.about:not(:has(.portrait)) h1 {
+			grid-column: 1 / -1;
+		}
+
+		.intro {
+			font-size: 19px;
+			margin-top: 0;
+		}
+	}
+</style>

@@ -1,22 +1,44 @@
 ---
 import { links } from '../data/site';
-import Label from './Label.astro';
 ---
 
-<footer class="mx-auto max-w-[1160px] border-t border-ink px-4 text-sm sm:px-6 md:px-10">
-	<div class="grid gap-x-10 pt-7 pb-14 md:grid-cols-[3fr_9fr]">
-		<Label n="06">Elsewhere</Label>
-		<div>
-			<ul class="flex flex-wrap gap-x-8 gap-y-2">
-				{
-					links.map((link) => (
-						<li>
-							<a href={link.href}>{link.label}</a>
-						</li>
-					))
-				}
-			</ul>
-			<p class="mt-12 text-muted">© {new Date().getFullYear()} Federico Bergamini</p>
-		</div>
-	</div>
+<footer class="wrap">
+	<div class="bar" aria-hidden="true"></div>
+	<span>Federico Bergamini, Luxembourg</span>
+	<ul>
+		{
+			links.map((link) => (
+				<li>
+					<a href={link.href}>{link.label}</a>
+				</li>
+			))
+		}
+	</ul>
 </footer>
+
+<style>
+	footer {
+		margin-top: 96px;
+		padding-bottom: 40px;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		gap: 8px 24px;
+		font-family: var(--sans);
+		font-size: 15px;
+		color: var(--slate);
+	}
+
+	.bar {
+		flex-basis: 100%;
+		height: 1px;
+		background: var(--rule);
+		margin-bottom: 12px;
+	}
+
+	ul {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px 20px;
+	}
+</style>

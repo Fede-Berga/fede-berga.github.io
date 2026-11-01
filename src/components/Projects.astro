@@ -1,0 +1,83 @@
+---
+import { projects } from '../data/site';
+---
+
+<section id="code" aria-labelledby="code-title">
+	<h2 id="code-title">Code</h2>
+	<ul>
+		{
+			projects.map((project) => (
+				<li>
+					<h3>
+						<a href={project.href}>{project.name}</a> <span class="language">{project.language}</span>
+					</h3>
+					<p>
+						{project.summary}
+						{project.demo && (
+							<>
+								{' '}
+								<a href={project.demo}>Play</a>
+							</>
+						)}
+					</p>
+				</li>
+			))
+		}
+	</ul>
+</section>
+
+<style>
+	section {
+		margin-top: 48px;
+	}
+
+	ul {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 32px 48px;
+	}
+
+	h3 {
+		font-size: 21px;
+	}
+
+	h3 a {
+		color: var(--ink);
+		text-decoration: none;
+	}
+
+	h3 a:hover {
+		color: var(--line);
+		text-decoration: underline;
+	}
+
+	.language {
+		font-family: var(--sans);
+		font-weight: 400;
+		font-size: 15px;
+		color: var(--slate);
+		margin-left: 2px;
+	}
+
+	p {
+		margin-top: 6px;
+		max-width: 34em;
+	}
+
+	@media (max-width: 1040px) {
+		ul {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 760px) {
+		ul {
+			grid-template-columns: 1fr;
+			gap: 24px;
+		}
+
+		h3 {
+			font-size: 19px;
+		}
+	}
+</style>

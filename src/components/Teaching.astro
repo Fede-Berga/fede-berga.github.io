@@ -1,0 +1,80 @@
+---
+import { classMaterial, theses } from '../data/site';
+---
+
+<section id="teaching" aria-labelledby="teaching-title">
+	<h2 id="teaching-title">Teaching and service</h2>
+	<ul class="facts">
+		<li>
+			<span class="year">2025</span>
+			<p>Guest editor, MDPI <i>Sensors</i> special issue, with D. Micucci and M. Mobilio.</p>
+		</li>
+		<li>
+			<span class="year">2025</span>
+			<details>
+				<summary>Tutor for Mobile Devices Programming and two BSc theses supervised, Milano-Bicocca.</summary>
+				<ul class="theses">
+					{theses.map((title) => <li>{title}</li>)}
+				</ul>
+			</details>
+		</li>
+		<li>
+			<span class="year">2024</span>
+			<p>
+				High school class material:{' '}
+				{
+					classMaterial.map((repo, i) => (
+						<>
+							{i > 0 && ', '}
+							<a href={repo.href}>{repo.name}</a>
+						</>
+					))
+				}.
+			</p>
+		</li>
+	</ul>
+</section>
+
+<style>
+	section {
+		margin-top: 64px;
+	}
+
+	.facts {
+		max-width: 52em;
+	}
+
+	.facts > li {
+		display: grid;
+		grid-template-columns: 3.2em minmax(0, 1fr);
+		gap: 0 12px;
+		padding: 8px 0;
+	}
+
+	.year {
+		padding-top: 2px;
+	}
+
+	summary {
+		cursor: pointer;
+	}
+
+	summary::marker {
+		color: var(--line);
+	}
+
+	.theses {
+		margin-top: 6px;
+		padding-left: 1.2em;
+		list-style: disc;
+		font-size: 15px;
+		line-height: 1.5;
+		color: var(--slate);
+	}
+
+	@media (max-width: 760px) {
+		section {
+			margin-top: 56px;
+		}
+	}
+</style>
