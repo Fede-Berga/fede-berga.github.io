@@ -5,16 +5,19 @@ import { log } from '../data/site';
 <section id="path" aria-labelledby="path-title">
 	<h2 id="path-title">From Milano to Luxembourg</h2>
 	<p class="cmd mono" aria-hidden="true"><span class="typed">git log --graph --oneline</span></p>
-	<ol class="log">
+	<ol class="log" style={`--n: ${log.length}`}>
 		{
 			log.map((commit, i) => {
 				const head = i === 0;
 				const root = i === log.length - 1;
-				const forks = !commit.side && log[i + 1]?.side;
+				const older = log[i + 1];
+				const forks = !commit.side && older?.side;
 				const merges = !commit.side && log[i - 1]?.side;
+				const dot = ['dot', commit.side ? 'b' : 'a', { head }];
 				return (
 					<li class:list={['commit', { side: commit.side }]} style={`--k: ${log.length - 1 - i}`}>
-						<div class="graph" aria-hidden="true">
+						{/* Vertical, newest on top: each row draws its own slice of the lanes. */}
+						<div class="graph v" aria-hidden="true">
 							<span class:list={['lane', 'a', { 'from-dot': head, 'to-dot': root }]} />
 							{commit.side && <span class="lane b" />}
 							{forks && (
@@ -33,7 +36,28 @@ import { log } from '../data/site';
 									</svg>
 								</>
 							)}
-							<span class:list={['dot', commit.side ? 'b' : 'a', { head }]} />
+							<span class:list={dot} />
+						</div>
+						{/* Horizontal, oldest on the left: each column draws the lanes coming in from the older one. */}
+						<div class="graph h" aria-hidden="true">
+							{!root && <span class="lane a in" />}
+							{commit.side && (
+								<>
+									<svg class="fork" viewBox="0 0 22 28">
+										<path d="M0 0C13 0 9 28 22 28" pathLength="1" />
+									</svg>
+									<span class="lane b after-fork" />
+								</>
+							)}
+							{older?.side && !commit.side && (
+								<>
+									<span class="lane b before-merge" />
+									<svg class="merge" viewBox="0 0 22 28">
+										<path d="M0 28C13 28 9 0 22 0" pathLength="1" />
+									</svg>
+								</>
+							)}
+							<span class:list={dot} />
 						</div>
 						<div class="body">
 							<p class="msg">
@@ -48,7 +72,7 @@ import { log } from '../data/site';
 								{commit.side && <span class="sr-only">, in parallel with the role below</span>}
 							</p>
 							<p class="place">
-								{commit.place} · <span class="when">{commit.when}</span>
+								{commit.place}<span class="sep"> · </span><span class="when">{commit.when}</span>
 							</p>
 						</div>
 					</li>
@@ -97,28 +121,8 @@ import { log } from '../data/site';
 		color: var(--line);
 	}
 
-	.log {
-		max-width: 46em;
-	}
-
-	.commit {
-		position: relative;
-		display: grid;
-		grid-template-columns: 48px minmax(0, 1fr);
-	}
-
-	.body {
-		padding: 10px 0;
-	}
-
-	.side .body {
-		padding-left: 22px;
-	}
-
-	/* Lanes at x = 12.5 and 34.5; dots sit at --cy, the middle of the 26px role line. */
 	.graph {
 		position: relative;
-		--cy: 23px;
 	}
 
 	.graph > * {
@@ -126,43 +130,7 @@ import { log } from '../data/site';
 	}
 
 	.lane {
-		width: 3px;
 		background: var(--line);
-		top: 0;
-		bottom: 0;
-	}
-
-	.lane.a {
-		left: 11px;
-	}
-
-	.lane.b {
-		left: 33px;
-	}
-
-	.from-dot {
-		top: var(--cy);
-	}
-
-	.to-dot {
-		bottom: auto;
-		height: var(--cy);
-	}
-
-	.after-fork {
-		top: calc(var(--cy) + 22px);
-	}
-
-	.before-merge {
-		bottom: auto;
-		height: calc(var(--cy) - 22px);
-	}
-
-	svg {
-		left: 12.5px;
-		width: 22px;
-		height: 22px;
-		overflow: visible;
 	}
 
 	path {
@@ -171,38 +139,22 @@ import { log } from '../data/site';
 		stroke-width: 3;
 	}
 
-	.fork {
-		top: var(--cy);
-	}
-
-	.merge {
-		top: calc(var(--cy) - 22px);
+	svg {
+		overflow: visible;
 	}
 
 	.dot {
 		width: 13px;
 		height: 13px;
-		top: calc(var(--cy) - 6.5px);
-		margin-left: -6.5px;
 		border: 3px solid var(--line);
 		border-radius: 999px;
 		background: var(--paper);
 		z-index: 1;
 	}
 
-	.dot.a {
-		left: 12.5px;
-	}
-
-	.dot.b {
-		left: 34.5px;
-	}
-
 	.dot.head {
 		width: 17px;
 		height: 17px;
-		top: calc(var(--cy) - 8.5px);
-		margin-left: -8.5px;
 		background: var(--line);
 	}
 
@@ -248,6 +200,197 @@ import { log } from '../data/site';
 		white-space: nowrap;
 	}
 
+	/*
+	 * Horizontal: the main lane at y = 10, the side lane at y = 38, dots at x = 8.
+	 * --span is the distance from the older column's dot to this one.
+	 */
+	.log {
+		display: grid;
+		grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+		gap: 0 28px;
+	}
+
+	.commit {
+		order: var(--k);
+	}
+
+	.v {
+		display: none;
+	}
+
+	.h {
+		--span: calc(100% + 28px);
+		height: 52px;
+	}
+
+	.h .lane {
+		height: 3px;
+	}
+
+	.h .lane.a {
+		top: 8.5px;
+	}
+
+	.h .lane.b {
+		top: 36.5px;
+	}
+
+	.h .in {
+		left: calc(8px - var(--span));
+		width: var(--span);
+	}
+
+	.h .after-fork {
+		left: calc(30px - var(--span));
+		width: calc(var(--span) - 22px);
+	}
+
+	.h .before-merge {
+		left: calc(8px - var(--span));
+		width: calc(var(--span) - 22px);
+	}
+
+	.h svg {
+		top: 10px;
+		width: 22px;
+		height: 28px;
+	}
+
+	.h .fork {
+		left: calc(8px - var(--span));
+	}
+
+	.h .merge {
+		left: -14px;
+	}
+
+	.h .dot {
+		left: 8px;
+		margin-left: -6.5px;
+	}
+
+	.h .dot.a {
+		top: 3.5px;
+	}
+
+	.h .dot.b {
+		top: 31.5px;
+	}
+
+	.h .dot.head {
+		top: 1.5px;
+		margin-left: -8.5px;
+	}
+
+	@media (min-width: 72em) {
+		.body {
+			padding-top: 6px;
+		}
+
+		.sep {
+			display: none;
+		}
+
+		.when {
+			display: block;
+			white-space: normal;
+		}
+	}
+
+	/* Vertical, newest first: lanes at x = 12.5 and 34.5, dots at --cy, the middle of the 26px role line. */
+	@media (max-width: 71.99em) {
+		.log {
+			display: block;
+			max-width: 46em;
+		}
+
+		.commit {
+			display: grid;
+			grid-template-columns: 48px minmax(0, 1fr);
+		}
+
+		.h {
+			display: none;
+		}
+
+		.v {
+			display: block;
+			--cy: 23px;
+		}
+
+		.body {
+			padding: 10px 0;
+		}
+
+		.side .body {
+			padding-left: 22px;
+		}
+
+		.v .lane {
+			width: 3px;
+			top: 0;
+			bottom: 0;
+		}
+
+		.v .lane.a {
+			left: 11px;
+		}
+
+		.v .lane.b {
+			left: 33px;
+		}
+
+		.v .from-dot {
+			top: var(--cy);
+		}
+
+		.v .to-dot {
+			bottom: auto;
+			height: var(--cy);
+		}
+
+		.v .after-fork {
+			top: calc(var(--cy) + 22px);
+		}
+
+		.v .before-merge {
+			bottom: auto;
+			height: calc(var(--cy) - 22px);
+		}
+
+		.v svg {
+			left: 12.5px;
+			width: 22px;
+			height: 22px;
+		}
+
+		.v .fork {
+			top: var(--cy);
+		}
+
+		.v .merge {
+			top: calc(var(--cy) - 22px);
+		}
+
+		.v .dot {
+			top: calc(var(--cy) - 6.5px);
+			margin-left: -6.5px;
+		}
+
+		.v .dot.a {
+			left: 12.5px;
+		}
+
+		.v .dot.b {
+			left: 34.5px;
+		}
+
+		.v .dot.head {
+			top: calc(var(--cy) - 8.5px);
+			margin-left: -8.5px;
+		}
+	}
+
 	@media (max-width: 760px) {
 		.hash {
 			display: none;
@@ -256,7 +399,7 @@ import { log } from '../data/site';
 
 	/*
 	 * Motion, only once the script arms the section: the command types out, then history
-	 * builds from the root commit up, one commit every 0.22s (--k counts from the bottom).
+	 * builds from the root commit on, one commit every 0.22s (--k counts from the oldest).
 	 */
 	.armed:not(.play) *,
 	.armed:not(.play) *::before,
@@ -287,14 +430,34 @@ import { log } from '../data/site';
 		--d: calc(1s + var(--k) * 0.22s);
 	}
 
-	.armed .lane {
-		transform-origin: bottom;
-		animation: rise 0.25s var(--d) linear both;
+	.armed .h .lane {
+		transform-origin: left;
+		animation: grow-x 0.25s var(--d) linear both;
 	}
 
-	.armed path {
+	.armed .h path {
 		stroke-dasharray: 1;
-		animation: draw 0.25s calc(var(--d) + 0.1s) ease-out both;
+		animation: draw-forward 0.15s var(--d) ease-out both;
+	}
+
+	/* On a fork the curve comes first; on a merge, the side lane before the curve. */
+	.armed .h .after-fork,
+	.armed .h .merge path {
+		animation-delay: calc(var(--d) + 0.15s);
+	}
+
+	.armed .h .before-merge {
+		animation-duration: 0.15s;
+	}
+
+	.armed .v .lane {
+		transform-origin: bottom;
+		animation: grow-y 0.25s var(--d) linear both;
+	}
+
+	.armed .v path {
+		stroke-dasharray: 1;
+		animation: draw-backward 0.25s calc(var(--d) + 0.1s) ease-out both;
 	}
 
 	.armed .dot {
@@ -328,14 +491,29 @@ import { log } from '../data/site';
 		}
 	}
 
-	@keyframes rise {
+	@keyframes grow-x {
+		from {
+			transform: scaleX(0);
+		}
+	}
+
+	@keyframes grow-y {
 		from {
 			transform: scaleY(0);
 		}
 	}
 
-	/* Paths run top to bottom, so a negative offset draws them upward from their end. */
-	@keyframes draw {
+	@keyframes draw-forward {
+		from {
+			stroke-dashoffset: 1;
+		}
+		to {
+			stroke-dashoffset: 0;
+		}
+	}
+
+	/* Vertical paths run top to bottom, so a negative offset draws them upward from their end. */
+	@keyframes draw-backward {
 		from {
 			stroke-dashoffset: -1;
 		}
