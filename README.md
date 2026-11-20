@@ -1,6 +1,6 @@
 # fede-berga.github.io
 
-Source of my personal website, https://fede-berga.github.io. It is a static site built with [Astro](https://astro.build) and Tailwind CSS and deployed to GitHub Pages by GitHub Actions.
+Source of my personal website, https://fede-berga.github.io. It is a static site built with [Astro](https://astro.build) and plain CSS and deployed to GitHub Pages by GitHub Actions.
 
 ## Quick start
 
