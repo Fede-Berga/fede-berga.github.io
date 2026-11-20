@@ -1,0 +1,67 @@
+---
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Page not found" description="This page does not exist." noindex>
+	<Header />
+	<main id="main" class="wrap">
+		<pre class="terminal" aria-hidden="true"><span class="prompt">$</span> git checkout <span class="path">this-page</span>
+<span class="error">error: pathspec '<span class="path">this-page</span>' did not match any file(s) known to git</span></pre>
+		<h1>Page not found</h1>
+		<p>There is nothing at this address. It may have moved, or the link may have a typo.</p>
+		<p><a href="/">Back to the home page</a></p>
+	</main>
+	<Footer />
+	<script is:inline>
+		for (const path of document.querySelectorAll('.path')) path.textContent = location.pathname;
+	</script>
+</Base>
+
+<style>
+	main {
+		padding-top: 56px;
+		padding-bottom: 96px;
+	}
+
+	.terminal {
+		font-size: 15px;
+		line-height: 1.7;
+		color: var(--slate);
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
+	}
+
+	.prompt {
+		color: var(--line);
+	}
+
+	.error {
+		color: var(--ink);
+	}
+
+	h1 {
+		font-size: 44px;
+		margin-top: 32px;
+	}
+
+	p {
+		margin-top: 12px;
+		max-width: 36em;
+	}
+
+	@media (max-width: 760px) {
+		main {
+			padding-top: 32px;
+		}
+
+		.terminal {
+			font-size: 13px;
+		}
+
+		h1 {
+			font-size: 32px;
+		}
+	}
+</style>
